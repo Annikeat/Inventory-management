@@ -84,6 +84,7 @@ node server.js
 ```
 
 ### Frontend
+```bash
 sudo apt update -y
 sudo apt install nginx
 systemctl start nginx
@@ -93,9 +94,11 @@ systemctl status nginx
 - copy the frontend code and paste it at /var/www/html/index.html
 
 ---
-
+```
 ## RDS(Mysql)
+
 - Setup the MySQL table:
+``` bash
 CREATE DATABASE store;
 
 USE store;
@@ -111,7 +114,7 @@ CREATE TABLE inventory (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-
+```
 ---
 
 
