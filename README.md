@@ -1,53 +1,118 @@
-# Inventory Management System (3-Tier Architecture)
+# 📦 Inventory Management System - Cloud Deployment
 
-This project demonstrates a **3-tier architecture** deployed on AWS with:
-- **Frontend** → Nginx serving a static HTML page
-- **Backend** → Node.js + Express application
-- **Database** → AWS RDS (MySQL)
+This project is a simple **Inventory Management System** used mainly to practice **Cloud and DevOps skills**.  
+The goal is not coding but **deploying and managing an app on AWS** with proper infrastructure setup.
 
-The focus is on **Infrastructure as Code (Terraform)** and **Cloud & DevOps practices**, not just app code.
-
----
-
-## 📂 Project Structure
-```
-inventory-management/
-├── frontend/      # Static frontend (HTML, CSS, JS)
-├── backend/       # Node.js API server
-├── README.md      # Documentation
-├── Inventory_Management_Documentation.docx
-```
+A full-stack Inventory Management System built using:
+- 🖥️ Frontend: HTML, CSS, JavaScript
+- ⚙️  Backend: Node.js + Express.js
+- 🗄️ Database: MySQL (Amazon RDS or local)
+- ☁️  Hosting: AWS EC2 (with optional NGINX reverse proxy)
 
 ---
 
 ## 🚀 Features
-- Terraform-based provisioning of VPC, EC2, and RDS
-- Frontend hosted on **public EC2 with Nginx**
-- Backend deployed on **private EC2 with Node.js**
-- Backend connects securely to RDS in private subnet
-- Proper use of **security groups** for tier-to-tier communication
+
+- Add, edit, delete inventory items
+- View all items in smart table
+- Export inventory as:
+  - 📄 CSV
+  - 📄 PDF (with formatting)
+- Reset inventory
+- Responsive, modern UI
+- Backend REST API with:
+  - `GET /inventory`
+  - `POST /inventory`
+  - `PUT /inventory/:id`
+  - `DELETE /inventory/:id`
+- `.env` for sensitive config
+- Deployed using EC2 within AWS Free Tier
+- Infrastructure is created through Terraform.
 
 ---
+
+## 🎯 What I Did
+- Deployed the app on **AWS EC2** (Ubuntu).
+- Used **Amazon RDS (MySQL)** for database.
+- Configured **NGINX** as a reverse proxy.
+- Managed infrastructure with **Terraform** (VPC, EC2, RDS, Security Groups).
+- Used **Linux commands** for setup and troubleshooting.
+- Version controlled with **Git + GitHub**.
+
+---
+
+## 🏗️ Architecture
+```
+User → NGINX (EC2) → Node.js Backend → MySQL (RDS)
+```
+
+---
+
+## 📁 Folder Structure
+
+project/
+│
+├── index.html # Frontend (Single file)
+├── server.js # Backend (Express)
+├── .env # Local environment config
+├── package.json # Node project config
+
 
 ## ⚡ Setup Instructions
 
 ### Backend
 ```bash
-cd backend
-npm install
-cp .env.example .env   # update with your RDS credentials
+sudo apt update -y
+sudo apt install -y nodejs npm
+sudo apt install mysql-client-core-8.0
+mkdir IM
+cd IM
+npm init -y
+npm install express mysql2 cors dotenv bcrypt   # Install dependencies of the backend code
+vim server.js                                   # In this file copy & paste the backend code
+vim .env
+
+- env file :
+PORT=3000
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_NAME=store
+
 node server.js
+
 ```
 
 ### Frontend
-Open `frontend/index.html` in browser  
-or serve via Nginx (public EC2).
+sudo apt update -y
+sudo apt install nginx
+systemctl start nginx
+systemctl enable nginx
+systemctl status nginx
+
+- copy the frontend code and paste it at /var/www/html/index.html
 
 ---
 
-## 🏗 Future Improvements
-- Automate deployment using **User Data / Ansible / CI/CD**
-- Add a **Load Balancer** in front of frontend
-- Store DB credentials securely in **AWS Secrets Manager**
+## RDS(Mysql)
+- Setup the MySQL table:
+CREATE DATABASE store;
+
+USE store;
+
+CREATE TABLE inventory (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  quantity INT NOT NULL DEFAULT 0,
+  price DECIMAL(10,2) DEFAULT 0.00,
+  category VARCHAR(100) DEFAULT '',
+  supplier VARCHAR(255) DEFAULT '',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 
 ---
+
+
+
