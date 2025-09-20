@@ -53,4 +53,4 @@ or serve via Nginx (public EC2).
 ---
 
 ## 👤 Author
-Created by **Your Name** (Cloud & DevOps Engineer)
+Created by Annikeat Jokare (Cloud & DevOps Engineer)
