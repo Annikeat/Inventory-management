@@ -91,10 +91,11 @@ systemctl start nginx
 systemctl enable nginx
 systemctl status nginx
 
+```
 - copy the frontend code and paste it at /var/www/html/index.html
 
 ---
-```
+
 ## RDS(Mysql)
 
 - Setup the MySQL table:
