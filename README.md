@@ -51,6 +51,3 @@ or serve via Nginx (public EC2).
 - Store DB credentials securely in **AWS Secrets Manager**
 
 ---
-
-## 👤 Author
-Created by Annikeat Jokare (Cloud & DevOps Engineer)
