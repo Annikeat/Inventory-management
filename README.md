@@ -7,7 +7,7 @@ A full-stack Inventory Management System built using:
 - 🖥️ Frontend: HTML, CSS, JavaScript
 - ⚙️  Backend: Node.js + Express.js
 - 🗄️ Database: MySQL (Amazon RDS or local)
-- ☁️  Hosting: AWS EC2 (with optional NGINX reverse proxy)
+- ☁️  Hosting: AWS EC2 
 
 ---
 
