@@ -68,8 +68,13 @@ sudo apt install mysql-client-core-8.0
 mkdir IM
 cd IM
 npm init -y
-npm install express mysql2 cors dotenv bcrypt   # Install dependencies of the backend code
-vim server.js                                   # In this file copy & paste the backend code
+npm install express mysql2 cors body-parser dotenv json2csv pdfkit morgan chalk       # Install dependencies of the backend code
+vim server.js                                                                         # In this file copy & paste the backend code
+node server.js
+nohup node server.js > backend.log 2>&1 &                                             # This you can use to run the server.js in background and to save the logs in backend.logs
+
+```
+```bash
 vim .env
 
 - env file :
