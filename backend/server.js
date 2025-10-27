@@ -7,6 +7,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { Parser } = require('json2csv');
 const PDFDocument = require('pdfkit');
+const morgan = require('morgan');
+const chalk = require('chalk');  // For colorized logs
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -15,18 +17,33 @@ const port = process.env.PORT || 3000;
 const dbConfig = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+  password: process.env.DB_PASS,
   database: process.env.DB_NAME,
 };
 
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
+// Custom timestamped logging
+app.use(
+  morgan(function (tokens, req, res) {
+    return [
+      chalk.gray(`[${new Date().toISOString()}]`),
+      chalk.cyan(tokens.method(req, res)),
+      chalk.yellow(tokens.url(req, res)),
+      chalk.green(tokens.status(req, res)),
+      chalk.white(tokens['response-time'](req, res) + ' ms'),
+    ].join(' ');
+  })
+);
+
+// Database connection helper
 async function getConnection() {
   return await mysql.createConnection(dbConfig);
 }
 
-// ... [Keep all your route handlers as before] ...
+// ------------------------- ROUTES -------------------------
 
 // GET all inventory items
 app.get('/inventory', async (req, res) => {
@@ -36,7 +53,7 @@ app.get('/inventory', async (req, res) => {
     await conn.end();
     res.json(rows);
   } catch (err) {
-    console.error('GET /inventory error:', err);
+    console.error(chalk.red('GET /inventory error:'), err);
     res.status(500).json({ error: 'Database error' });
   }
 });
@@ -50,7 +67,7 @@ app.get('/inventory/:id', async (req, res) => {
     if (rows.length === 0) return res.status(404).json({ error: 'Item not found' });
     res.json(rows[0]);
   } catch (err) {
-    console.error('GET /inventory/:id error:', err);
+    console.error(chalk.red('GET /inventory/:id error:'), err);
     res.status(500).json({ error: 'Database error' });
   }
 });
@@ -59,7 +76,8 @@ app.get('/inventory/:id', async (req, res) => {
 app.post('/inventory', async (req, res) => {
   try {
     const { name, quantity, price, category, supplier } = req.body;
-    if (!name || quantity == null) return res.status(400).json({ error: 'Name and quantity are required' });
+    if (!name || quantity == null)
+      return res.status(400).json({ error: 'Name and quantity are required' });
 
     const conn = await getConnection();
     await conn.query(
@@ -69,7 +87,7 @@ app.post('/inventory', async (req, res) => {
     await conn.end();
     res.json({ message: 'Item added' });
   } catch (err) {
-    console.error('POST /inventory error:', err);
+    console.error(chalk.red('POST /inventory error:'), err);
     res.status(500).json({ error: 'Database error' });
   }
 });
@@ -78,7 +96,8 @@ app.post('/inventory', async (req, res) => {
 app.put('/inventory/:id', async (req, res) => {
   try {
     const { name, quantity, price, category, supplier } = req.body;
-    if (!name || quantity == null) return res.status(400).json({ error: 'Name and quantity are required' });
+    if (!name || quantity == null)
+      return res.status(400).json({ error: 'Name and quantity are required' });
 
     const conn = await getConnection();
     const [result] = await conn.query(
@@ -87,11 +106,12 @@ app.put('/inventory/:id', async (req, res) => {
     );
     await conn.end();
 
-    if (result.affectedRows === 0) return res.status(404).json({ error: 'Item not found' });
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: 'Item not found' });
 
     res.json({ message: 'Item updated' });
   } catch (err) {
-    console.error('PUT /inventory/:id error:', err);
+    console.error(chalk.red('PUT /inventory/:id error:'), err);
     res.status(500).json({ error: 'Database error' });
   }
 });
@@ -103,11 +123,12 @@ app.delete('/inventory/:id', async (req, res) => {
     const [result] = await conn.query('DELETE FROM inventory WHERE id = ?', [req.params.id]);
     await conn.end();
 
-    if (result.affectedRows === 0) return res.status(404).json({ error: 'Item not found' });
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: 'Item not found' });
 
     res.json({ message: 'Item deleted' });
   } catch (err) {
-    console.error('DELETE /inventory/:id error:', err);
+    console.error(chalk.red('DELETE /inventory/:id error:'), err);
     res.status(500).json({ error: 'Database error' });
   }
 });
@@ -127,7 +148,7 @@ app.get('/export/csv', async (req, res) => {
     res.attachment('inventory.csv');
     res.send(csv);
   } catch (err) {
-    console.error('GET /export/csv error:', err);
+    console.error(chalk.red('GET /export/csv error:'), err);
     res.status(500).send('Failed to export CSV');
   }
 });
@@ -142,7 +163,7 @@ app.get('/export/pdf', async (req, res) => {
     const doc = new PDFDocument({ margin: 30, size: 'A4' });
     let filename = 'inventory.pdf';
 
-    res.setHeader('Content-disposition', 'attachment; filename="' + filename + '"');
+    res.setHeader('Content-disposition', `attachment; filename="${filename}"`);
     res.setHeader('Content-type', 'application/pdf');
 
     doc.pipe(res);
@@ -167,8 +188,8 @@ app.get('/export/pdf', async (req, res) => {
 
     rows.forEach(item => {
       doc.text(item.name, itemX, y);
-      doc.text(item.quantity.toString(), qtyX, y);
-      doc.text('₹' + (item.price || 0).toFixed(2), priceX, y);
+      doc.text(item.quantity?.toString() || '0', qtyX, y);
+      doc.text('₹' + (parseFloat(item.price) || 0).toFixed(2), priceX, y); // ✅ FIXED
       doc.text(item.category || '-', categoryX, y);
       doc.text(item.supplier || '-', supplierX, y);
       y += 20;
@@ -176,11 +197,13 @@ app.get('/export/pdf', async (req, res) => {
 
     doc.end();
   } catch (err) {
-    console.error('GET /export/pdf error:', err);
+    console.error(chalk.red('GET /export/pdf error:'), err);
     res.status(500).send('Failed to export PDF');
   }
 });
 
-app.listen(port, () => {
-  console.log(`Inventory backend listening at http://localhost:${port}`);
+// -----------------------------------------------------------
+
+app.listen(port, '0.0.0.0', () => {
+  console.log(chalk.green(`🚀 Inventory backend listening at http://localhost:${port}`));
 });
