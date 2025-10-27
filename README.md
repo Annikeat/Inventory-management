@@ -77,7 +77,7 @@ nohup node server.js > backend.log 2>&1 &                                       
 ```bash
 vim .env
 
-- env file :
+# Copy and paste this in .env file.
 PORT=3000
 DB_HOST=localhost
 DB_USER=root
