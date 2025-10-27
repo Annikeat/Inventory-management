@@ -6,7 +6,7 @@ The goal is not coding but **deploying and managing an app on AWS** with proper 
 A full-stack Inventory Management System built using:
 - 🖥️ Frontend: HTML, CSS, JavaScript
 - ⚙️  Backend: Node.js + Express.js
-- 🗄️ Database: MySQL (Amazon RDS or local)
+- 🗄️ Database: MySQL (Amazon RDS)
 - ☁️  Hosting: AWS EC2 
 
 ---
